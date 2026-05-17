@@ -1,13 +1,24 @@
 import { useEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
+import Button from "@mui/material/Button";
+import Box from "@mui/material/Box";
 import MovieListPage from "./pages/HomePage";
 import MovieDetailsPage from "./pages/MovieDetailsPage";
-import { getMovies, getMovieDetails, getMovieImages } from "./api/tmdb-api";
+import {
+  getMovies,
+  getPopularMovies,
+  getTopRatedMovies,
+  getNowPlayingMovies,
+  getMovieDetails,
+  getMovieImages,
+} from "./api/tmdb-api";
 import {
   DiscoverMovieOverviewProps,
   MovieDetailsProps,
   MovieImage,
 } from "./types/movieAppTypes";
+
+type MovieView = "discover" | "popular" | "topRated" | "nowPlaying";
 
 const App = () => {
   const [movies, setMovies] = useState<DiscoverMovieOverviewProps[]>([]);
@@ -16,9 +27,23 @@ const App = () => {
   );
   const [images, setImages] = useState<MovieImage[]>([]);
   const [loading, setLoading] = useState(true);
+  const [currentView, setCurrentView] = useState<MovieView>("discover");
 
-  useEffect(() => {
-    getMovies()
+  const loadMovies = (view: MovieView) => {
+    setLoading(true);
+    setSelectedMovie(null);
+    setCurrentView(view);
+
+    const apiCall =
+      view === "popular"
+        ? getPopularMovies
+        : view === "topRated"
+        ? getTopRatedMovies
+        : view === "nowPlaying"
+        ? getNowPlayingMovies
+        : getMovies;
+
+    apiCall()
       .then((data) => {
         setMovies(data.results ?? []);
         setLoading(false);
@@ -27,6 +52,10 @@ const App = () => {
         console.error("Error fetching movies:", error);
         setLoading(false);
       });
+  };
+
+  useEffect(() => {
+    loadMovies("discover");
   }, []);
 
   const handleMovieSelect = async (id: number) => {
@@ -45,19 +74,49 @@ const App = () => {
     setLoading(false);
   };
 
+  const getPageTitle = () => {
+    if (currentView === "popular") return "Popular Movies";
+    if (currentView === "topRated") return "Top Rated Movies";
+    if (currentView === "nowPlaying") return "Now Playing Movies";
+    return "Discover Movies";
+  };
+
   if (loading) return <h1>Loading...</h1>;
 
   if (selectedMovie) {
     return (
-  <MovieDetailsPage
-    movie={selectedMovie}
-    images={images}
-    onBack={() => setSelectedMovie(null)}
-  />
-  );
+      <MovieDetailsPage
+        movie={selectedMovie}
+        images={images}
+        onBack={() => setSelectedMovie(null)}
+      />
+    );
   }
 
-  return <MovieListPage movies={movies} onMovieSelect={handleMovieSelect} />;
+  return (
+    <>
+      <Box sx={{ display: "flex", gap: 2, p: 2, flexWrap: "wrap" }}>
+        <Button variant="contained" onClick={() => loadMovies("discover")}>
+          Discover
+        </Button>
+        <Button variant="contained" onClick={() => loadMovies("popular")}>
+          Popular
+        </Button>
+        <Button variant="contained" onClick={() => loadMovies("topRated")}>
+          Top Rated
+        </Button>
+        <Button variant="contained" onClick={() => loadMovies("nowPlaying")}>
+          Now Playing
+        </Button>
+      </Box>
+
+      <MovieListPage
+        movies={movies}
+        title={getPageTitle()}
+        onMovieSelect={handleMovieSelect}
+      />
+    </>
+  );
 };
 
 const rootElement = createRoot(document.getElementById("root")!);

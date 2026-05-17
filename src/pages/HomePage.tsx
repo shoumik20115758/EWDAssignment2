@@ -11,7 +11,11 @@ const styles = {
   },
 };
 
-const MovieListPage = ({ movies, onMovieSelect }: BaseMovieListProps) => {
+const MovieListPage = ({
+  movies,
+  title = "Discover Movies",
+  onMovieSelect,
+}: BaseMovieListProps) => {
   const [titleFilter, setTitleFilter] = useState("");
 
   const displayedMovies = movies.filter((m) =>
@@ -21,7 +25,7 @@ const MovieListPage = ({ movies, onMovieSelect }: BaseMovieListProps) => {
   return (
     <Grid container sx={styles.root}>
       <Grid item xs={12}>
-        <Header title={"Discover Movies"} />
+        <Header title={title} />
       </Grid>
 
       <Grid item xs={12} sx={{ mb: 3 }}>
