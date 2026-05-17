@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
-import Button from "@mui/material/Button";
-import Box from "@mui/material/Box";
+import SiteHeader from "./components/SiteHeader";
 import FantasyMoviePage from "./pages/FantasyMoviePage";
 import MovieListPage from "./pages/HomePage";
 import MovieDetailsPage from "./pages/MovieDetailsPage";
@@ -57,12 +56,23 @@ const App = () => {
     loadMovies("discover");
   }, []);
 
+  const handleNavigate = (view: MovieView) => {
+    if (view === "fantasy") {
+      setSelectedMovie(null);
+      setCurrentView("fantasy");
+      setLoading(false);
+    } else {
+      loadMovies(view);
+    }
+  };
+
   const handleMovieSelect = async (id: number) => {
     setLoading(true);
 
     try {
       const movieDetails = await getMovieDetails(id);
       const movieImages = await getMovieImages(id);
+
       setSelectedMovie(movieDetails);
       setImages(movieImages.posters?.slice(0, 4) ?? []);
     } catch (error) {
@@ -79,32 +89,25 @@ const App = () => {
     return "Discover Movies";
   };
 
-  const navigation = (
-    <Box sx={{ display: "flex", gap: 2, p: 2, flexWrap: "wrap" }}>
-      <Button variant="contained" onClick={() => loadMovies("discover")}>Discover</Button>
-      <Button variant="contained" onClick={() => loadMovies("popular")}>Popular</Button>
-      <Button variant="contained" onClick={() => loadMovies("topRated")}>Top Rated</Button>
-      <Button variant="contained" onClick={() => loadMovies("nowPlaying")}>Now Playing</Button>
-      <Button variant="contained" onClick={() => setCurrentView("fantasy")}>Fantasy Movie</Button>
-    </Box>
-  );
-
   if (loading) return <h1>Loading...</h1>;
 
   if (selectedMovie) {
     return (
-      <MovieDetailsPage
-        movie={selectedMovie}
-        images={images}
-        onBack={() => setSelectedMovie(null)}
-      />
+      <>
+        <SiteHeader onNavigate={handleNavigate} />
+        <MovieDetailsPage
+          movie={selectedMovie}
+          images={images}
+          onBack={() => setSelectedMovie(null)}
+        />
+      </>
     );
   }
 
   if (currentView === "fantasy") {
     return (
       <>
-        {navigation}
+        <SiteHeader onNavigate={handleNavigate} />
         <FantasyMoviePage />
       </>
     );
@@ -112,7 +115,7 @@ const App = () => {
 
   return (
     <>
-      {navigation}
+      <SiteHeader onNavigate={handleNavigate} />
       <MovieListPage
         movies={movies}
         title={getPageTitle()}
