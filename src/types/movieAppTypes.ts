@@ -1,5 +1,3 @@
-// src/types/tmdb.ts
-
 import { paths } from "./generated/tmdb";
 
 export type DiscoverMoviesProps =
@@ -10,6 +8,7 @@ export type DiscoverMovieOverviewProps =
 
 export type BaseMovieListProps = {
   movies: NonNullable<DiscoverMoviesProps["results"]>;
+  title?: string;
   onMovieSelect?: (id: number) => void;
 };
 
