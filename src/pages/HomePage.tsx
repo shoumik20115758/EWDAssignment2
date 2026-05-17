@@ -3,8 +3,18 @@ import Header from "../components/HeaderMovieList";
 import Grid from "@mui/material/Grid";
 import TextField from "@mui/material/TextField";
 import MenuItem from "@mui/material/MenuItem";
+import Button from "@mui/material/Button";
+import Box from "@mui/material/Box";
+import Typography from "@mui/material/Typography";
 import MovieList from "../components/MovieList";
 import { BaseMovieListProps } from "../types/movieAppTypes";
+
+type Props = BaseMovieListProps & {
+  page?: number;
+  totalPages?: number;
+  onNextPage?: () => void;
+  onPreviousPage?: () => void;
+};
 
 const styles = {
   root: {
@@ -16,7 +26,11 @@ const MovieListPage = ({
   movies,
   title = "Discover Movies",
   onMovieSelect,
-}: BaseMovieListProps) => {
+  page = 1,
+  totalPages = 1,
+  onNextPage,
+  onPreviousPage,
+}: Props) => {
   const [titleFilter, setTitleFilter] = useState("");
   const [sortOption, setSortOption] = useState("default");
 
@@ -72,6 +86,30 @@ const MovieListPage = ({
           <MenuItem value="rating">Rating high-low</MenuItem>
           <MenuItem value="releaseDate">Release date newest</MenuItem>
         </TextField>
+      </Grid>
+
+      <Grid item xs={12}>
+        <Box sx={{ display: "flex", justifyContent: "center", gap: 2, mb: 3 }}>
+          <Button
+            variant="outlined"
+            disabled={page <= 1}
+            onClick={onPreviousPage}
+          >
+            Previous Page
+          </Button>
+
+          <Typography variant="h6">
+            Page {page} of {totalPages}
+          </Typography>
+
+          <Button
+            variant="outlined"
+            disabled={page >= totalPages}
+            onClick={onNextPage}
+          >
+            Next Page
+          </Button>
+        </Box>
       </Grid>
 
       <Grid item container spacing={5}>

@@ -43,12 +43,15 @@ const App = () => {
   const [cast, setCast] = useState<MovieCastMember[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentView, setCurrentView] = useState<MovieView>("discover");
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
-  const loadMovies = (view: MovieView) => {
+  const loadMovies = (view: MovieView, selectedPage = 1) => {
     setLoading(true);
     setSelectedMovie(null);
     setSelectedActor(null);
     setCurrentView(view);
+    setPage(selectedPage);
 
     const apiCall =
       view === "popular"
@@ -59,9 +62,10 @@ const App = () => {
         ? getNowPlayingMovies
         : getMovies;
 
-    apiCall()
+    apiCall(selectedPage)
       .then((data) => {
         setMovies(data.results ?? []);
+        setTotalPages(data.total_pages ?? 1);
         setLoading(false);
       })
       .catch((error) => {
@@ -88,7 +92,7 @@ const App = () => {
   };
 
   useEffect(() => {
-    loadMovies("discover");
+    loadMovies("discover", 1);
   }, []);
 
   const handleNavigate = (view: MovieView) => {
@@ -100,8 +104,16 @@ const App = () => {
     } else if (view === "actors") {
       loadActors();
     } else {
-      loadMovies(view);
+      loadMovies(view, 1);
     }
+  };
+
+  const handleNextPage = () => {
+    loadMovies(currentView, page + 1);
+  };
+
+  const handlePreviousPage = () => {
+    loadMovies(currentView, page - 1);
   };
 
   const handleMovieSelect = async (id: number) => {
@@ -200,6 +212,10 @@ const App = () => {
         movies={movies}
         title={getPageTitle()}
         onMovieSelect={handleMovieSelect}
+        page={page}
+        totalPages={totalPages}
+        onNextPage={handleNextPage}
+        onPreviousPage={handlePreviousPage}
       />
     </>
   );
