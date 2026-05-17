@@ -46,3 +46,15 @@ export const getMovieImages = (id: number) => {
     `https://api.themoviedb.org/3/movie/${id}/images?api_key=${API_KEY}`
   );
 };
+
+export const getPopularActors = () => {
+  return fetchFromTMDB(
+    `https://api.themoviedb.org/3/person/popular?api_key=${API_KEY}&language=en-US&page=1`
+  );
+};
+
+export const getActorDetails = (id: number) => {
+  return fetchFromTMDB(
+    `https://api.themoviedb.org/3/person/${id}?api_key=${API_KEY}&language=en-US`
+  );
+};

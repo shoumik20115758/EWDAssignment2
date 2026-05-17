@@ -4,8 +4,16 @@ import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
 import Box from "@mui/material/Box";
 
+type View =
+  | "discover"
+  | "popular"
+  | "topRated"
+  | "nowPlaying"
+  | "fantasy"
+  | "actors";
+
 type Props = {
-  onNavigate: (view: "discover" | "popular" | "topRated" | "nowPlaying" | "fantasy") => void;
+  onNavigate: (view: View) => void;
 };
 
 const SiteHeader = ({ onNavigate }: Props) => {
@@ -28,6 +36,9 @@ const SiteHeader = ({ onNavigate }: Props) => {
           </Button>
           <Button color="inherit" onClick={() => onNavigate("nowPlaying")}>
             Now Playing
+          </Button>
+          <Button color="inherit" onClick={() => onNavigate("actors")}>
+            Actors
           </Button>
           <Button color="inherit" onClick={() => onNavigate("fantasy")}>
             Fantasy Movie

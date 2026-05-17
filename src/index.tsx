@@ -4,6 +4,8 @@ import SiteHeader from "./components/SiteHeader";
 import FantasyMoviePage from "./pages/FantasyMoviePage";
 import MovieListPage from "./pages/HomePage";
 import MovieDetailsPage from "./pages/MovieDetailsPage";
+import ActorListPage from "./pages/ActorListPage";
+import ActorDetailsPage from "./pages/ActorDetailsPage";
 import {
   getMovies,
   getPopularMovies,
@@ -11,18 +13,32 @@ import {
   getNowPlayingMovies,
   getMovieDetails,
   getMovieImages,
+  getPopularActors,
+  getActorDetails,
 } from "./api/tmdb-api";
 import {
   DiscoverMovieOverviewProps,
   MovieDetailsProps,
   MovieImage,
+  Actor,
+  ActorDetails,
 } from "./types/movieAppTypes";
 
-type MovieView = "discover" | "popular" | "topRated" | "nowPlaying" | "fantasy";
+type MovieView =
+  | "discover"
+  | "popular"
+  | "topRated"
+  | "nowPlaying"
+  | "fantasy"
+  | "actors";
 
 const App = () => {
   const [movies, setMovies] = useState<DiscoverMovieOverviewProps[]>([]);
-  const [selectedMovie, setSelectedMovie] = useState<MovieDetailsProps | null>(null);
+  const [actors, setActors] = useState<Actor[]>([]);
+  const [selectedMovie, setSelectedMovie] = useState<MovieDetailsProps | null>(
+    null
+  );
+  const [selectedActor, setSelectedActor] = useState<ActorDetails | null>(null);
   const [images, setImages] = useState<MovieImage[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentView, setCurrentView] = useState<MovieView>("discover");
@@ -30,6 +46,7 @@ const App = () => {
   const loadMovies = (view: MovieView) => {
     setLoading(true);
     setSelectedMovie(null);
+    setSelectedActor(null);
     setCurrentView(view);
 
     const apiCall =
@@ -52,6 +69,23 @@ const App = () => {
       });
   };
 
+  const loadActors = () => {
+    setLoading(true);
+    setSelectedMovie(null);
+    setSelectedActor(null);
+    setCurrentView("actors");
+
+    getPopularActors()
+      .then((data) => {
+        setActors(data.results ?? []);
+        setLoading(false);
+      })
+      .catch((error) => {
+        console.error("Error fetching actors:", error);
+        setLoading(false);
+      });
+  };
+
   useEffect(() => {
     loadMovies("discover");
   }, []);
@@ -59,8 +93,11 @@ const App = () => {
   const handleNavigate = (view: MovieView) => {
     if (view === "fantasy") {
       setSelectedMovie(null);
+      setSelectedActor(null);
       setCurrentView("fantasy");
       setLoading(false);
+    } else if (view === "actors") {
+      loadActors();
     } else {
       loadMovies(view);
     }
@@ -77,6 +114,19 @@ const App = () => {
       setImages(movieImages.posters?.slice(0, 4) ?? []);
     } catch (error) {
       console.error("Error fetching movie details:", error);
+    }
+
+    setLoading(false);
+  };
+
+  const handleActorSelect = async (id: number) => {
+    setLoading(true);
+
+    try {
+      const actorDetails = await getActorDetails(id);
+      setSelectedActor(actorDetails);
+    } catch (error) {
+      console.error("Error fetching actor details:", error);
     }
 
     setLoading(false);
@@ -104,11 +154,32 @@ const App = () => {
     );
   }
 
+  if (selectedActor) {
+    return (
+      <>
+        <SiteHeader onNavigate={handleNavigate} />
+        <ActorDetailsPage
+          actor={selectedActor}
+          onBack={() => setSelectedActor(null)}
+        />
+      </>
+    );
+  }
+
   if (currentView === "fantasy") {
     return (
       <>
         <SiteHeader onNavigate={handleNavigate} />
         <FantasyMoviePage />
+      </>
+    );
+  }
+
+  if (currentView === "actors") {
+    return (
+      <>
+        <SiteHeader onNavigate={handleNavigate} />
+        <ActorListPage actors={actors} onActorSelect={handleActorSelect} />
       </>
     );
   }
