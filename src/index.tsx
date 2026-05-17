@@ -48,7 +48,13 @@ const App = () => {
   if (loading) return <h1>Loading...</h1>;
 
   if (selectedMovie) {
-    return <MovieDetailsPage movie={selectedMovie} images={images} />;
+    return (
+  <MovieDetailsPage
+    movie={selectedMovie}
+    images={images}
+    onBack={() => setSelectedMovie(null)}
+  />
+  );
   }
 
   return <MovieListPage movies={movies} onMovieSelect={handleMovieSelect} />;
