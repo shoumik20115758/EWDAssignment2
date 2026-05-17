@@ -15,6 +15,7 @@ import {
   getMovieImages,
   getPopularActors,
   getActorDetails,
+  getMovieCredits,
 } from "./api/tmdb-api";
 import {
   DiscoverMovieOverviewProps,
@@ -22,6 +23,7 @@ import {
   MovieImage,
   Actor,
   ActorDetails,
+  MovieCastMember,
 } from "./types/movieAppTypes";
 
 type MovieView =
@@ -35,11 +37,10 @@ type MovieView =
 const App = () => {
   const [movies, setMovies] = useState<DiscoverMovieOverviewProps[]>([]);
   const [actors, setActors] = useState<Actor[]>([]);
-  const [selectedMovie, setSelectedMovie] = useState<MovieDetailsProps | null>(
-    null
-  );
+  const [selectedMovie, setSelectedMovie] = useState<MovieDetailsProps | null>(null);
   const [selectedActor, setSelectedActor] = useState<ActorDetails | null>(null);
   const [images, setImages] = useState<MovieImage[]>([]);
+  const [cast, setCast] = useState<MovieCastMember[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentView, setCurrentView] = useState<MovieView>("discover");
 
@@ -109,9 +110,11 @@ const App = () => {
     try {
       const movieDetails = await getMovieDetails(id);
       const movieImages = await getMovieImages(id);
+      const movieCredits = await getMovieCredits(id);
 
       setSelectedMovie(movieDetails);
       setImages(movieImages.posters?.slice(0, 4) ?? []);
+      setCast(movieCredits.cast?.slice(0, 10) ?? []);
     } catch (error) {
       console.error("Error fetching movie details:", error);
     }
@@ -125,6 +128,7 @@ const App = () => {
     try {
       const actorDetails = await getActorDetails(id);
       setSelectedActor(actorDetails);
+      setSelectedMovie(null);
     } catch (error) {
       console.error("Error fetching actor details:", error);
     }
@@ -141,6 +145,21 @@ const App = () => {
 
   if (loading) return <h1>Loading...</h1>;
 
+  if (selectedActor) {
+    return (
+      <>
+        <SiteHeader onNavigate={handleNavigate} />
+        <ActorDetailsPage
+          actor={selectedActor}
+          onBack={() => {
+            setSelectedActor(null);
+            loadActors();
+          }}
+        />
+      </>
+    );
+  }
+
   if (selectedMovie) {
     return (
       <>
@@ -148,19 +167,9 @@ const App = () => {
         <MovieDetailsPage
           movie={selectedMovie}
           images={images}
+          cast={cast}
+          onActorSelect={handleActorSelect}
           onBack={() => setSelectedMovie(null)}
-        />
-      </>
-    );
-  }
-
-  if (selectedActor) {
-    return (
-      <>
-        <SiteHeader onNavigate={handleNavigate} />
-        <ActorDetailsPage
-          actor={selectedActor}
-          onBack={() => setSelectedActor(null)}
         />
       </>
     );

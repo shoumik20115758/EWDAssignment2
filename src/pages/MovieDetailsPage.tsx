@@ -4,10 +4,15 @@ import Grid from "@mui/material/Grid";
 import Button from "@mui/material/Button";
 import ImageList from "@mui/material/ImageList";
 import ImageListItem from "@mui/material/ImageListItem";
-import { MoviePageProps } from "../types/movieAppTypes";
+import {
+  MoviePageProps,
+  MovieCastMember,
+} from "../types/movieAppTypes";
 
 type Props = MoviePageProps & {
   onBack?: () => void;
+  cast: MovieCastMember[];
+  onActorSelect: (id: number) => void;
 };
 
 const styles = {
@@ -22,7 +27,13 @@ const styles = {
   },
 };
 
-const MoviePage = ({ movie, images, onBack }: Props) => {
+const MoviePage = ({
+  movie,
+  images,
+  onBack,
+  cast,
+  onActorSelect,
+}: Props) => {
   return (
     <>
       <Button variant="contained" sx={{ m: 2 }} onClick={onBack}>
@@ -52,7 +63,11 @@ const MoviePage = ({ movie, images, onBack }: Props) => {
             </Grid>
 
             <Grid item xs={9}>
-              <MovieDetails {...movie} />
+              <MovieDetails
+                movie={movie}
+                cast={cast}
+                onActorSelect={onActorSelect}
+              />
             </Grid>
           </Grid>
         </>

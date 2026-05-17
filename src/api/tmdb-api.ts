@@ -58,3 +58,9 @@ export const getActorDetails = (id: number) => {
     `https://api.themoviedb.org/3/person/${id}?api_key=${API_KEY}&language=en-US`
   );
 };
+
+export const getMovieCredits = (id: number) => {
+  return fetchFromTMDB(
+    `https://api.themoviedb.org/3/movie/${id}/credits?api_key=${API_KEY}`
+  );
+};

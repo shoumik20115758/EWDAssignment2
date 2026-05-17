@@ -52,3 +52,10 @@ export type ActorDetails = {
   known_for_department: string;
   popularity: number;
 };
+
+export type MovieCastMember = {
+  id: number;
+  name: string;
+  character: string;
+  profile_path: string | null;
+};
