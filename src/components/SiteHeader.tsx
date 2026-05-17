@@ -21,7 +21,7 @@ const SiteHeader = ({ onNavigate }: Props) => {
     <AppBar position="static">
       <Toolbar sx={{ display: "flex", flexWrap: "wrap", gap: 2 }}>
         <Typography variant="h5" sx={{ flexGrow: 1 }}>
-          Movies SPA
+          Assignment 2 - Movie App
         </Typography>
 
         <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
