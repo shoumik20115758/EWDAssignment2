@@ -45,7 +45,11 @@ const MovieDetails = (movie: MovieDetailsProps) => {
 
       <Paper component="ul" sx={styles.chipSet}>
         <li>
-          <Chip label="Production Countries" sx={styles.chipLabel} color="primary" />
+          <Chip
+            label="Production Countries"
+            sx={styles.chipLabel}
+            color="primary"
+          />
         </li>
         {(movie.production_countries ?? []).map((country) => (
           <li key={country.iso_3166_1}>
