@@ -11,19 +11,17 @@ const styles = {
   },
 };
 
-const MovieListPage = ({ movies }: BaseMovieListProps) => {
+const MovieListPage = ({ movies, onMovieSelect }: BaseMovieListProps) => {
   const [titleFilter, setTitleFilter] = useState("");
 
   const displayedMovies = movies.filter((m) =>
-    (m.title ?? "")
-      .toLowerCase()
-      .includes(titleFilter.toLowerCase())
+    (m.title ?? "").toLowerCase().includes(titleFilter.toLowerCase())
   );
 
   return (
     <Grid container sx={styles.root}>
       <Grid item xs={12}>
-        <Header title={"Home Page"} />
+        <Header title={"Discover Movies"} />
       </Grid>
 
       <Grid item xs={12} sx={{ mb: 3 }}>
@@ -37,7 +35,7 @@ const MovieListPage = ({ movies }: BaseMovieListProps) => {
       </Grid>
 
       <Grid item container spacing={5}>
-        <MovieList movies={displayedMovies} />
+        <MovieList movies={displayedMovies} onMovieSelect={onMovieSelect} />
       </Grid>
     </Grid>
   );

@@ -10,23 +10,19 @@ import CalendarIcon from "@mui/icons-material/CalendarTodayTwoTone";
 import StarRateIcon from "@mui/icons-material/StarRate";
 import Grid from "@mui/material/Grid";
 import IconButton from "@mui/material/IconButton";
-import img from '../images/film-poster-placeholder.png';
-import { DiscoverMovieOverviewProps } from "../types/movieAppTypes";
+import img from "../images/film-poster-placeholder.png";
+import { MovieCardProps } from "../types/movieAppTypes";
 
 const styles = {
   card: { maxWidth: 345 },
   media: { height: 500 },
-  avatar: {
-    backgroundColor: "rgb(255, 0, 0)",
-  },
 };
 
-const MovieCard = (movie: DiscoverMovieOverviewProps) => {
- 
-
+const MovieCard = (movie: MovieCardProps) => {
   return (
     <Card sx={styles.card}>
       <CardHeader title={movie.title ?? "Untitled"} />
+
       <CardMedia
         sx={styles.media}
         image={
@@ -35,6 +31,7 @@ const MovieCard = (movie: DiscoverMovieOverviewProps) => {
             : img
         }
       />
+
       <CardContent>
         <Grid container>
           <Grid item xs={6}>
@@ -43,24 +40,31 @@ const MovieCard = (movie: DiscoverMovieOverviewProps) => {
               {movie.release_date}
             </Typography>
           </Grid>
+
           <Grid item xs={6}>
             <Typography variant="h6" component="p">
-              <StarRateIcon fontSize="small" />
-              {"  "} {movie.vote_average}{" "}
+              <StarRateIcon fontSize="small" /> {movie.vote_average}
             </Typography>
           </Grid>
         </Grid>
       </CardContent>
+
       <CardActions disableSpacing>
-        <IconButton aria-label="add to favorites" >
+        <IconButton aria-label="add to favorites">
           <FavoriteIcon color="primary" fontSize="large" />
         </IconButton>
-        <Button variant="outlined" size="medium" color="primary">
+
+        <Button
+          variant="outlined"
+          size="medium"
+          color="primary"
+          onClick={() => movie.onMovieSelect?.(movie.id ?? 0)}
+        >
           More Info ...
         </Button>
       </CardActions>
     </Card>
   );
-}
+};
 
 export default MovieCard;
