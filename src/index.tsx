@@ -2,10 +2,12 @@ import { useEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
 import SiteHeader from "./components/SiteHeader";
 import FantasyMoviePage from "./pages/FantasyMoviePage";
+import LoginPage from "./pages/LoginPage";
 import MovieListPage from "./pages/HomePage";
 import MovieDetailsPage from "./pages/MovieDetailsPage";
 import ActorListPage from "./pages/ActorListPage";
 import ActorDetailsPage from "./pages/ActorDetailsPage";
+
 import {
   getMovies,
   getPopularMovies,
@@ -17,6 +19,7 @@ import {
   getActorDetails,
   getMovieCredits,
 } from "./api/tmdb-api";
+
 import {
   DiscoverMovieOverviewProps,
   MovieDetailsProps,
@@ -35,21 +38,45 @@ type MovieView =
   | "actors";
 
 const App = () => {
+  const [username, setUsername] = useState<string | null>(null);
+
   const [movies, setMovies] = useState<DiscoverMovieOverviewProps[]>([]);
   const [actors, setActors] = useState<Actor[]>([]);
-  const [selectedMovie, setSelectedMovie] = useState<MovieDetailsProps | null>(null);
-  const [selectedActor, setSelectedActor] = useState<ActorDetails | null>(null);
+  const [selectedMovie, setSelectedMovie] =
+    useState<MovieDetailsProps | null>(null);
+  const [selectedActor, setSelectedActor] =
+    useState<ActorDetails | null>(null);
+
   const [images, setImages] = useState<MovieImage[]>([]);
   const [cast, setCast] = useState<MovieCastMember[]>([]);
+
   const [loading, setLoading] = useState(true);
-  const [currentView, setCurrentView] = useState<MovieView>("discover");
+
+  const [currentView, setCurrentView] =
+    useState<MovieView>("discover");
+
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
-  const loadMovies = (view: MovieView, selectedPage = 1) => {
+  useEffect(() => {
+    const storedUser = localStorage.getItem("moviesAppUser");
+
+    if (storedUser) {
+      setUsername(storedUser);
+    }
+
+    loadMovies("discover", 1);
+  }, []);
+
+  const loadMovies = (
+    view: MovieView,
+    selectedPage = 1
+  ) => {
     setLoading(true);
+
     setSelectedMovie(null);
     setSelectedActor(null);
+
     setCurrentView(view);
     setPage(selectedPage);
 
@@ -76,8 +103,10 @@ const App = () => {
 
   const loadActors = () => {
     setLoading(true);
+
     setSelectedMovie(null);
     setSelectedActor(null);
+
     setCurrentView("actors");
 
     getPopularActors()
@@ -91,14 +120,11 @@ const App = () => {
       });
   };
 
-  useEffect(() => {
-    loadMovies("discover", 1);
-  }, []);
-
   const handleNavigate = (view: MovieView) => {
     if (view === "fantasy") {
       setSelectedMovie(null);
       setSelectedActor(null);
+
       setCurrentView("fantasy");
       setLoading(false);
     } else if (view === "actors") {
@@ -125,7 +151,9 @@ const App = () => {
       const movieCredits = await getMovieCredits(id);
 
       setSelectedMovie(movieDetails);
+
       setImages(movieImages.posters?.slice(0, 4) ?? []);
+
       setCast(movieCredits.cast?.slice(0, 10) ?? []);
     } catch (error) {
       console.error("Error fetching movie details:", error);
@@ -139,7 +167,9 @@ const App = () => {
 
     try {
       const actorDetails = await getActorDetails(id);
+
       setSelectedActor(actorDetails);
+
       setSelectedMovie(null);
     } catch (error) {
       console.error("Error fetching actor details:", error);
@@ -148,19 +178,43 @@ const App = () => {
     setLoading(false);
   };
 
+  const handleLogin = (newUsername: string) => {
+    setUsername(newUsername);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem("moviesAppUser");
+
+    setUsername(null);
+  };
+
   const getPageTitle = () => {
     if (currentView === "popular") return "Popular Movies";
-    if (currentView === "topRated") return "Top Rated Movies";
-    if (currentView === "nowPlaying") return "Now Playing Movies";
+
+    if (currentView === "topRated")
+      return "Top Rated Movies";
+
+    if (currentView === "nowPlaying")
+      return "Now Playing Movies";
+
     return "Discover Movies";
   };
+
+  if (!username) {
+    return <LoginPage onLogin={handleLogin} />;
+  }
 
   if (loading) return <h1>Loading...</h1>;
 
   if (selectedActor) {
     return (
       <>
-        <SiteHeader onNavigate={handleNavigate} />
+        <SiteHeader
+          username={username}
+          onLogout={handleLogout}
+          onNavigate={handleNavigate}
+        />
+
         <ActorDetailsPage
           actor={selectedActor}
           onBack={() => {
@@ -175,7 +229,12 @@ const App = () => {
   if (selectedMovie) {
     return (
       <>
-        <SiteHeader onNavigate={handleNavigate} />
+        <SiteHeader
+          username={username}
+          onLogout={handleLogout}
+          onNavigate={handleNavigate}
+        />
+
         <MovieDetailsPage
           movie={selectedMovie}
           images={images}
@@ -190,7 +249,12 @@ const App = () => {
   if (currentView === "fantasy") {
     return (
       <>
-        <SiteHeader onNavigate={handleNavigate} />
+        <SiteHeader
+          username={username}
+          onLogout={handleLogout}
+          onNavigate={handleNavigate}
+        />
+
         <FantasyMoviePage />
       </>
     );
@@ -199,15 +263,28 @@ const App = () => {
   if (currentView === "actors") {
     return (
       <>
-        <SiteHeader onNavigate={handleNavigate} />
-        <ActorListPage actors={actors} onActorSelect={handleActorSelect} />
+        <SiteHeader
+          username={username}
+          onLogout={handleLogout}
+          onNavigate={handleNavigate}
+        />
+
+        <ActorListPage
+          actors={actors}
+          onActorSelect={handleActorSelect}
+        />
       </>
     );
   }
 
   return (
     <>
-      <SiteHeader onNavigate={handleNavigate} />
+      <SiteHeader
+        username={username}
+        onLogout={handleLogout}
+        onNavigate={handleNavigate}
+      />
+
       <MovieListPage
         movies={movies}
         title={getPageTitle()}
@@ -221,5 +298,8 @@ const App = () => {
   );
 };
 
-const rootElement = createRoot(document.getElementById("root")!);
+const rootElement = createRoot(
+  document.getElementById("root")!
+);
+
 rootElement.render(<App />);
