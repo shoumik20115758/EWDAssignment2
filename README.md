@@ -183,7 +183,6 @@ AI assistance was primarily used for:
 - troubleshooting React component behaviour
 - discussing implementation approaches
 - improving UI layout ideas
-- generating initial draft code examples
 - identifying possible assignment features
 
 All generated suggestions were reviewed, edited, tested and integrated manually.
